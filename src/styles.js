@@ -10,12 +10,12 @@ export const styles = StyleSheet.create({
     },
     inputContainer: {
         padding: 10,
-        // display: 'flex',
+        display: 'flex',
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        width: '90%',
-        height: 50,
+        // width: '90%',
+        // height: 50,
         marginBottom: 20,
     },
     input: {
@@ -57,8 +57,13 @@ export const styles = StyleSheet.create({
         width: '100%',
         alignSelf: 'center',
     },
-    todoTextContainer: {
+    todoDetailsIcon:{
         flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    todoTextContainer: {
+        flex: 2,
         flexDirection: 'column',
         marginRight: 20,
     },

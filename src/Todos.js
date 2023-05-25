@@ -1,39 +1,37 @@
 import { useState } from "react";
-import { FlatList, SafeAreaView, TextInput, TouchableOpacity, View, Text, Button } from "react-native";
-import Ionicons from '@expo/vector-icons/Ionicons';
+import { FlatList, TouchableOpacity, View, Text, Button } from "react-native";
 import { styles } from "./styles";
 import Todo from "./Todo";
+import CustomModal from "./components/CustomModal";
+import { useDispatch, useSelector } from "react-redux";
+import { markTodoAsDone, removeTodo } from "./features/TodoSlice";
+import Input from "./Input";
 
-const Todos = () => {
-    const [value, setValue] = useState('');
-    const [todoDesc, setTodoDesc] = useState('');
-    const [todos, setTodos] = useState([]);
+const Todos = ({ nav }) => {
     const [filter, setFilter] = useState('All');
+    const [showModal, setShowModal] = useState(false);
+    const { todos } = useSelector((store) => store.todos);
+    const [selectedTodoId, setSelectedTodoId] = useState(null);
+    const dispatch = useDispatch();
 
-    const addTodo = () => {
-
-        if (!value.trim() || !todoDesc.trim()) {
-            alert('Please enter a valid task and description.');
-            return;
-          }
-        setTodos([...todos, { title: value, description: todoDesc, status: 'Active' }]);
-        setValue('');
-        setTodoDesc('');
+    const closeModal = () => {
+        setShowModal(false);
     }
-    const markTodoAsDone = (index) => {
-        const newTodos = [...todos];
-        if(newTodos[index].status === 'Done'){
-            newTodos[index].status = 'Active';
-        }else{
-            newTodos[index].status = 'Done';
-        }
-        setTodos(newTodos);
+
+    const openModal = (id) => {
+        setSelectedTodoId(id);
+        setShowModal(true);
+    }
+
+    const markATodoAsDone = async (id) => {
+        dispatch(markTodoAsDone(id));
     };
 
-    const deleteTodo = (index) => {
-        const newTodos = [...todos];
-        newTodos.splice(index, 1);
-        setTodos(newTodos);
+    const deleteTodo = async () => {
+        if (selectedTodoId) {
+            dispatch(removeTodo(selectedTodoId));
+            closeModal();
+        }
     };
 
     const filterTodos = (status) => {
@@ -44,25 +42,13 @@ const Todos = () => {
         }
     };
 
+    const routingToDetails = (id) => {
+        nav.navigate('Details', { id: id })
+    }
+
     return (
         <>
-            <View style={styles.inputContainer}>
-                <View>
-                    <TextInput style={styles.input} placeholder='Enter the task for The day!'
-                        value={value}
-                        onChangeText={setValue}
-                    />
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Enter todo description"
-                        value={todoDesc}
-                        onChangeText={text => setTodoDesc(text)}
-                    />
-                </View>
-                <TouchableOpacity style={styles.submitBtn} onPress={() => addTodo()}>
-                    <Ionicons name="add-sharp" size={24} color="white" />
-                </TouchableOpacity>
-            </View>
+            <Input />
             <Text style={styles.dividerLine} />
             <View style={styles.filterButtonsContainer}>
                 <Button
@@ -81,15 +67,22 @@ const Todos = () => {
                     color={filter === 'Done' ? '#007AFF' : '#333'}
                 />
             </View>
-            <FlatList style={{width: '60%'}}
+            <FlatList style={{ width: '60%' }}
                 data={filterTodos(filter)}
                 renderItem={({ item, index }) => (
-                    <TouchableOpacity onPress={() => markTodoAsDone(index)}>
-                        <Todo todo={item} onDelete={deleteTodo} index={index}/>
+                    <TouchableOpacity onPress={() => markATodoAsDone(item.id)}>
+                        <Todo todo={item} onDelete={() => openModal(item.id)} index={index} routing={routingToDetails} />
                     </TouchableOpacity>
                 )}
             />
+            <CustomModal
+                msg={'Are you sure you want to delete this todo?'}
+                visible={showModal}
+                overlay={true}
+                closeModal={closeModal}
+                action={deleteTodo}
+                animation='slide' />
         </>
     )
 }
-export default Todos
+export default Todos;

@@ -1,16 +1,12 @@
 import { StatusBar } from 'expo-status-bar';
-import { useState } from 'react';
-import { FlatList, Image, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import Todos from './src/Todos';
-import { styles } from './src/styles';
+import { Provider } from 'react-redux';
+import store from './src/store';
+import Router from './src/Routes';
 
 export default function App() {
   return (
-    <SafeAreaView >
-      <View  style={styles.container}>
-      <Todos />
-
-      </View>
-    </SafeAreaView>
+    <Provider store={store}>
+      <Router />
+    </Provider>
   );
 }
